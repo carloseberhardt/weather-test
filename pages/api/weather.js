@@ -26,7 +26,7 @@ const query = gql`
 
 export default async (req, res) => {
         const {
-            netlifyFunctionParams: { event, context },
+            netlifyFunctionParams: { context },
           } = req;
         if (context) {
             console.log("context: ", context)
