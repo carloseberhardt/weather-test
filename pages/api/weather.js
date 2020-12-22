@@ -25,8 +25,15 @@ const query = gql`
 `
 
 export default async (req, res) => {
-    //console.log("req: ", req.headers)
-
+    if (req.netlifyFunctionParams) {
+        const {
+            netlifyFunctionParams: { event, context },
+          } = req;
+        if (context) {
+            console.log("context: ", context)
+        }    
+    }
+    
     try {
         const data = await graphQLClient.rawRequest(query)
         //console.log(JSON.stringify(data))
