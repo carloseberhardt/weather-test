@@ -24,14 +24,24 @@ const query = gql`
 }
 `
 
+JSON.safeStringify = (obj, indent = 2) => {
+    let cache = [];
+    const retVal = JSON.stringify(
+      obj,
+      (key, value) =>
+        typeof value === "object" && value !== null
+          ? cache.includes(value)
+            ? undefined // Duplicate reference found, discard key
+            : cache.push(value) && value // Store value in our collection
+          : value,
+      indent
+    );
+    cache = null;
+    return retVal;
+  };
+
 export default async (req, res) => {
-        const {
-            netlifyFunctionParams: { context },
-          } = req;
-        if (context) {
-            console.log("context: ", context)
-        }    
-    
+    console.log("req: ", JSON.safeStringify(req))
     try {
         const data = await graphQLClient.rawRequest(query)
         //console.log(JSON.stringify(data))
