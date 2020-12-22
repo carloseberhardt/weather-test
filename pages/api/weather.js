@@ -8,7 +8,7 @@ const graphQLClient = new GraphQLClient(STEPZEN_URL, {
     }
 })
 
-const query = gql`
+const defaultQuery = gql`
 {
   getForecast(lat: 45.3194, long: -92.9719) {
     shortForecast
@@ -41,15 +41,31 @@ JSON.safeStringify = (obj, indent = 2) => {
   };
 
 export default async (req, res) => {
-    console.log("req: ", JSON.safeStringify(req))
+    // this is clunky, but it's just a test
+    var query, usedDefault
+    if (req.headers["x-bb-ip"]) {
+        let ip = req.headers["x-bb-ip"]
+        // use ip query
+        query = gql`
+        {  
+            getLocation(ip: "${ip}") {
+                city
+                forecast {detailedForecast, icon}
+            }
+        }
+        `
+    } else {
+        //use default query
+        query = defaultQuery
+    }
     try {
         const data = await graphQLClient.rawRequest(query)
-        //console.log(JSON.stringify(data))
+        console.log(JSON.stringify(data))
         res.statusCode = 200
         res.json(data.data)
     } catch (error) {
-        console.error(JSON.stringify(error, undefined, 2))
+        console.error("error:", error)
         res.statusCode = 500
-        res.text("Server Error")
+        res.send("Server Error")
     }
 }

@@ -14,14 +14,35 @@ interface Forecast {
     detailedForecast: String
 }
 
+interface Location {
+    ip: String
+    country_code: String
+    country_name: String
+    region_code: String
+    region_name: String
+    city: String
+    zip_code: String
+    time_zone: String
+    latitude: Float!
+    longitude: Float!
+    metro_code: Int
+    forecast: Forecast 
+        @materializer (query: "getForecast", arguments: [{name: "lat", field: "latitude"},{name:"long",field:"longitude"}])
+}
+
 type Query {
     getForecast(lat: Float!, long: Float!): Forecast
+    getLocation(ip: String!): Location
 }
 
 type ForecastGov implements Forecast {}
+type FreeGeoIP implements Location{}
 
 type Query {
     getForecastGov(lat: Float!, long: Float!): ForecastGov
         @supplies(query: "getForecast")
         @rest(endpoint: "https://govwx-zo6fgz3fza-uc.a.run.app/forecast")
+    getFreeGeoIP(ip: String!): FreeGeoIP
+        @supplies(query: "getLocation")
+        @rest(endpoint: """https://freegeoip.app/json/{{ .Get \"ip\"}}""")
 }
