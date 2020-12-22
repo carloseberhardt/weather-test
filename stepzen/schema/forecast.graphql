@@ -1,0 +1,27 @@
+interface Forecast {
+    number: Int
+    name: String
+    startTime: String
+    endTime: String
+    isDaytime: Boolean
+    temperature: Float
+    temperatureUnit: String
+    temperatureTrend: String
+    windSpeed: String
+    windDirection: String
+    icon: String
+    shortForecast: String
+    detailedForecast: String
+}
+
+type Query {
+    getForecast(lat: Float!, long: Float!): Forecast
+}
+
+type ForecastGov implements Forecast {}
+
+type Query {
+    getForecastGov(lat: Float!, long: Float!): ForecastGov
+        @supplies(query: "getForecast")
+        @rest(endpoint: "https://govwx-zo6fgz3fza-uc.a.run.app/forecast")
+}
