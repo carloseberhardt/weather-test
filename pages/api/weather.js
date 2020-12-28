@@ -2,27 +2,13 @@ import { GraphQLClient, gql } from 'graphql-request'
 
 const { STEPZEN_URL, STEPZEN_KEY } = process.env
 
+let ip = "128.101.101.101"
+
 const graphQLClient = new GraphQLClient(STEPZEN_URL, {
     headers: {
         authorization: `Apikey ${STEPZEN_KEY}`
     }
 })
-
-const defaultQuery = gql`
-{
-  getForecast(lat: 45.3194, long: -92.9719) {
-    shortForecast
-    detailedForecast
-    icon
-    isDaytime
-    windSpeed
-    windDirection
-    temperatureTrend
-    temperature
-    temperatureUnit
-  }
-}
-`
 
 JSON.safeStringify = (obj, indent = 2) => {
     let cache = [];
@@ -44,20 +30,21 @@ export default async (req, res) => {
     // this is clunky, but it's just a test
     var query, usedDefault
     if (req.headers["x-bb-ip"]) {
-        let ip = req.headers["x-bb-ip"]
-        // use ip query
-        query = gql`
-        {  
-            getLocation(ip: "${ip}") {
-                city
-                forecast {detailedForecast, icon}
+        ip = req.headers["x-bb-ip"]
+    }
+    query = gql`
+    {
+        location(ip: "${ip}") {
+            city
+            weather {
+                temp
+                units
+                feelsLike
+                description
             }
         }
-        `
-    } else {
-        //use default query
-        query = defaultQuery
     }
+    `
     try {
         const data = await graphQLClient.rawRequest(query)
         console.log(JSON.stringify(data))

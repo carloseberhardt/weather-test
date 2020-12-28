@@ -14,7 +14,7 @@ interface Forecast {
     detailedForecast: String
 }
 
-interface Location {
+interface LocationTwo {
     ip: String
     country_code: String
     country_name: String
@@ -28,21 +28,60 @@ interface Location {
     metro_code: Int
     forecast: Forecast 
         @materializer (query: "getForecast", arguments: [{name: "lat", field: "latitude"},{name:"long",field:"longitude"}])
+    
 }
 
-type Query {
-    getForecast(lat: Float!, long: Float!): Forecast
-    getLocation(ip: String!): Location
+interface WeatherReport {
+    date: Date!
+    latitude: Float!
+    longitude: Float!
+    temp: Float
+    feelsLike: Float
+    description: String
+    units: String
 }
+
+interface Location {
+    city: String
+    country: String!
+    currency: String
+    ip: String!
+    latitude: Float!
+    longitude: Float!
+    postalCode: String
+    weather: WeatherReport
+        @materializer (query: "weatherReport")
+}
+
+type OpenWeatherMapReport implements WeatherReport {}
 
 type ForecastGov implements Forecast {}
-type FreeGeoIP implements Location{}
+
+type IpApi implements Location {}
+
+type FreeGeoIP implements LocationTwo{}
 
 type Query {
+    weatherReport (latitude: Float!, longitude: Float!): WeatherReport
+    
+    openWeatherMapReport (latitude: Float!, longitude: Float!): OpenWeatherMapReport
+        @supplies (query: "weatherReport")
+        @connector(type: "__openweathermap_weather_location_connector__", configuration: "owm_default")
+    
+    getForecast(lat: Float!, long: Float!): Forecast
+    
+    getLocation(ip: String!): LocationTwo
+    
     getForecastGov(lat: Float!, long: Float!): ForecastGov
         @supplies(query: "getForecast")
         @rest(endpoint: "https://govwx-zo6fgz3fza-uc.a.run.app/forecast")
+    
     getFreeGeoIP(ip: String!): FreeGeoIP
         @supplies(query: "getLocation")
         @rest(endpoint: """https://freegeoip.app/json/{{ .Get \"ip\"}}""")
+
+    location (ip: String!): Location
+    ipApi (ip: String!): IpApi
+        @supplies (query: "location")
+        @connector (type: "__ipapi_location_ip_connector__", configuration: "ipapi_default")
 }

@@ -7,7 +7,6 @@ export default function Weather() {
     const { data, error } = useSWR('/api/weather', fetcher)
     if (error) return <div>failed to load</div>
     if (!data) return <div>loading...</div>
-    if (data.getLocation) return <div><img src={data.getLocation.forecast.icon} alt="weather icon"/><p>{data.getLocation.forecast.detailedForecast}</p></div>
-    if (data.getForecast) return <div><img src={data.getForecast.icon} alt="weather icon"/><p>{data.getForecast.detailedForecast}</p></div>
+    return <div><p>In {data.location.city}, it feels like {data.location.weather.feelsLike} {data.location.weather.units} with {data.location.weather.description}.</p></div>
 }
 
