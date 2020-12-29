@@ -2,6 +2,7 @@ import { GraphQLClient, gql } from 'graphql-request'
 
 const { STEPZEN_URL, STEPZEN_KEY } = process.env
 
+// default ip if we fail to resolve or are running locally.
 let ip = "128.101.101.101"
 
 const graphQLClient = new GraphQLClient(STEPZEN_URL, {
@@ -27,12 +28,11 @@ JSON.safeStringify = (obj, indent = 2) => {
   };
 
 export default async (req, res) => {
-    // this is clunky, but it's just a test
-    var query, usedDefault
+    console.log("headers: ", req.headers)
     if (req.headers["x-bb-ip"]) {
         ip = req.headers["x-bb-ip"]
     }
-    query = gql`
+    let query = gql`
     {
         location(ip: "${ip}") {
             city
