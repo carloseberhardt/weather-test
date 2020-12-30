@@ -1,7 +1,7 @@
 import { GraphQLClient, gql } from 'graphql-request'
 
 const { STEPZEN_URL, STEPZEN_KEY } = process.env
-
+const REFERERS=["https://serene-borg-7b5e16.netlify.app/", "https://weather-test.c3b.dev/", "http://localhost:3000/"]
 // default ip if we fail to resolve or are running locally.
 let ip = "128.101.101.101"
 
@@ -11,24 +11,29 @@ const graphQLClient = new GraphQLClient(STEPZEN_URL, {
     }
 })
 
-JSON.safeStringify = (obj, indent = 2) => {
-    let cache = [];
-    const retVal = JSON.stringify(
-      obj,
-      (key, value) =>
-        typeof value === "object" && value !== null
-          ? cache.includes(value)
-            ? undefined // Duplicate reference found, discard key
-            : cache.push(value) && value // Store value in our collection
-          : value,
-      indent
-    );
-    cache = null;
-    return retVal;
-  };
-
 export default async (req, res) => {
     console.log("headers: ", req.headers)
+    
+    // check sec-fetch-site header for same-origin
+    if (req.headers["sec-fetch-site"] && req.headers["sec-fetch-site"] != "same-origin") {
+        console.log("Not same-origin: ", req.headers["sec-fetch-site"])
+        res.statusCode = 403
+        res.send("FORBIDDEN")
+        return
+    } else if (! req.headers["sec-fetch-site"]) {
+        // requiring sec-fetch-site header would current break on several popular browsers.
+        // See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-Fetch-Site
+    }
+
+    // check referer header for known referrers
+    if (req.headers["referer"] && ! REFERERS.includes(req.headers["referer"])) {
+        console.log("Bad referer: ", req.headers["referer"])
+        res.statusCode = 403
+        res.send("FORBIDDEN")
+        return
+    }
+
+    // query
     if (req.headers["x-bb-ip"]) {
         ip = req.headers["x-bb-ip"]
     }
@@ -45,6 +50,7 @@ export default async (req, res) => {
         }
     }
     `
+    
     try {
         const data = await graphQLClient.rawRequest(query)
         console.log(JSON.stringify(data))
