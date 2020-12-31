@@ -1,36 +1,4 @@
-interface Forecast {
-    number: Int
-    name: String
-    startTime: String
-    endTime: String
-    isDaytime: Boolean
-    temperature: Float
-    temperatureUnit: String
-    temperatureTrend: String
-    windSpeed: String
-    windDirection: String
-    icon: String
-    shortForecast: String
-    detailedForecast: String
-}
-
-interface LocationTwo {
-    ip: String
-    country_code: String
-    country_name: String
-    region_code: String
-    region_name: String
-    city: String
-    zip_code: String
-    time_zone: String
-    latitude: Float!
-    longitude: Float!
-    metro_code: Int
-    forecast: Forecast 
-        @materializer (query: "getForecast", arguments: [{name: "lat", field: "latitude"},{name:"long",field:"longitude"}])
-    
-}
-
+#interfaces
 interface WeatherReport {
     date: Date!
     latitude: Float!
@@ -53,33 +21,18 @@ interface Location {
         @materializer (query: "weatherReport")
 }
 
+# types
 type OpenWeatherMapReport implements WeatherReport {}
-
-type ForecastGov implements Forecast {}
-
 type IpApi implements Location {}
 
-type FreeGeoIP implements LocationTwo{}
-
 type Query {
+    # weather info
     weatherReport (latitude: Float!, longitude: Float!): WeatherReport
-    
     openWeatherMapReport (latitude: Float!, longitude: Float!): OpenWeatherMapReport
         @supplies (query: "weatherReport")
         @connector(type: "__openweathermap_weather_location_connector__", configuration: "owm_default")
     
-    getForecast(lat: Float!, long: Float!): Forecast
-    
-    getLocation(ip: String!): LocationTwo
-    
-    getForecastGov(lat: Float!, long: Float!): ForecastGov
-        @supplies(query: "getForecast")
-        @rest(endpoint: "https://govwx-zo6fgz3fza-uc.a.run.app/forecast")
-    
-    getFreeGeoIP(ip: String!): FreeGeoIP
-        @supplies(query: "getLocation")
-        @rest(endpoint: """https://freegeoip.app/json/{{ .Get \"ip\"}}""")
-
+    #location info
     location (ip: String!): Location
     ipApi (ip: String!): IpApi
         @supplies (query: "location")
