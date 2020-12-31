@@ -7,7 +7,6 @@ export default function Home() {
     <div className={styles.container}>
       <Head>
         <title>Weather Test</title>
-        <link rel="icon" href="https://stepzen.com/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
@@ -18,10 +17,6 @@ export default function Home() {
           <Weather/>
           </div>
       </main>
-
-      <footer className={styles.footer}>
-        <p>Some footer,eh?</p>
-      </footer>
     </div>
   )
 }
