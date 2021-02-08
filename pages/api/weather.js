@@ -1,7 +1,7 @@
 import { GraphQLClient, gql } from 'graphql-request'
 
 const { STEPZEN_URL, STEPZEN_KEY } = process.env
-const REFERERS=["https://weather-test.c3b.dev/", "http://localhost:3000/"]
+const REFERERS=["https://weather-test.c3b.dev/", "http://localhost:3000/", "https://e35ecc70b67a.ngrok.io/"]
 // default ip if we fail to resolve or are running locally.
 let ip = "128.101.101.101"
 
@@ -33,9 +33,12 @@ export default async (req, res) => {
         return
     }
 
-    // query
-    if (req.headers["x-bb-ip"]) {
-        ip = req.headers["x-bb-ip"]
+    // query -- to find ip we check for x-forwarded-for header, then override that if the x-nf-client-connection-ip header exists
+    if (req.headers["x-forwarded-for"]) {
+        ip = req.headers["x-forwarded-for"].split(',')[0]
+    }
+    if (req.headers["x-nf-client-connection-ip"]) {
+        ip = req.headers["x-nf-client-connection-ip"]
     }
     let query = gql`
     {
