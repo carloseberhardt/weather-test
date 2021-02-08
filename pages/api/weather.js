@@ -1,7 +1,7 @@
 import { GraphQLClient, gql } from 'graphql-request'
 
 const { STEPZEN_URL, STEPZEN_KEY } = process.env
-const REFERERS=["https://weather-test.c3b.dev/", "http://localhost:3000/", "https://e35ecc70b67a.ngrok.io/"]
+const REFERERS=["https://weather-test.c3b.dev/", "http://localhost:3000/"]
 // default ip if we fail to resolve or are running locally.
 let ip = "128.101.101.101"
 
