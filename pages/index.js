@@ -7,8 +7,9 @@ export default function Home() {
     <div className={styles.container}>
       <Head>
         <title>Weather Test</title>
+        <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs-pro@3/dist/fp.min.js" onload="initFingerprintJS()" key="src1"/>
+        <script src="/scripts/initFingerprint.js" key="src2"/>
       </Head>
-
       <main className={styles.main}>
         <h2 className={styles.h2}>
           Weather test
